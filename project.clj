@@ -12,6 +12,7 @@
                  [reagent-utils "0.1.7"]
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.1.5"]
+                 [ring-server                 "0.3.1"]
                  [compojure "1.5.0"]
                  [hiccup "1.0.5"]
                  [environ "1.0.2"]
@@ -21,7 +22,8 @@
                  [venantius/accountant "0.1.7"
                   :exclusions [org.clojure/tools.reader]]]
 
-  :plugins [[lein-environ "1.0.2"]
+  :plugins [[lein-ring    "0.9.7"]
+            [lein-environ "1.0.2"]
             [lein-cljsbuild "1.1.1"]
             [lein-asset-minifier "0.2.7"
              :exclusions [org.clojure/clojure]]]
@@ -40,6 +42,7 @@
                                     [:cljsbuild :builds :app :compiler :output-to]]
 
   :source-paths ["src/clj" "src/cljc"]
+  :test-paths   ["test/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]
 
   :minify-assets
@@ -75,7 +78,8 @@
                                   ]
 
                    :source-paths ["env/dev/clj"]
-                   :plugins [[lein-figwheel "0.5.0-6"
+                   :plugins [[com.jakemccrary/lein-test-refresh "0.12.0"]
+                             [lein-figwheel "0.5.0-6"
                               :exclusions [org.clojure/core.memoize
                                            ring/ring-core
                                            org.clojure/clojure
