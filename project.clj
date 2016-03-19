@@ -20,7 +20,8 @@
                   :scope "provided"]
                  [secretary "1.2.3"]
                  [venantius/accountant "0.1.7"
-                  :exclusions [org.clojure/tools.reader]]]
+                  :exclusions [org.clojure/tools.reader]]
+                 [net.mikera/core.matrix "0.50.0"]]
 
   :plugins [[lein-ring    "0.9.7"]
             [lein-environ "1.0.2"]

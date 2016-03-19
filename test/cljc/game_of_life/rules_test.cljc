@@ -4,7 +4,6 @@
                      )
             [game-of-life.rules :as util]))
 
-
 (deftest cell-will-be-dead
   (testing "Living cell will die"
     (is (= false (util/will-be-alive? true 1)))
@@ -102,3 +101,15 @@
     (is (= 8 (util/number-of-living-neighbours? [1,1] [[1,1,1]
                                                        [1,0,1]
                                                        [1,1,1]])))))
+
+(deftest next-generation
+  (testing "A living cell will die by under population"
+    (is (= [[0,0]
+            [0,0]] (util/next-generation [[1,0]
+                                          [0,0]]))))
+  (testing "Live cells will survive and die and new cells be born depending on neighbours"
+    (is (= [[1,0,1]
+            [1,0,1]
+            [0,0,0]] (util/next-generation [[1,1,1]
+                                            [1,1,0]
+                                            [0,0,0]])))))
