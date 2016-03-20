@@ -113,3 +113,37 @@
             [0,0,0]] (util/next-generation [[1,1,1]
                                             [1,1,0]
                                             [0,0,0]])))))
+
+(deftest toggle-cell
+  (testing "A living cell will be switched to dead cell"
+    (is (= [[0,0]
+            [0,0]] (util/toggle-cell  [[1,0]
+                                       [0,0]] [0,0])))
+    (is (= [[0,0,0,0]
+            [0,0,0,0]
+            [0,0,0,0]
+            [0,0,0,0]] (util/toggle-cell  [[0,0,0,0]
+                                           [0,0,0,0]
+                                           [0,0,0,0]
+                                           [0,0,1,0]] [2,3]))))
+  (testing "A dead cell will be switched to a living cell"
+    (is (= [[1,0]
+            [0,0]] (util/toggle-cell [[0,0]
+                                      [0,0]] [0,0]))))
+  (testing "Returns matrix as is if if cell not on matrix"
+    (is (= [[1,1]
+            [1,1]] (util/toggle-cell [[1,1]
+                                      [1,1]] [3,0])))))
+
+(deftest create-empty-grid
+  (testing "Creates a grid with given dimensions"
+    (is (= [[0,0]
+            [0,0]] (util/create-empty-grid 2 2)))
+
+    (is (= [[0,0,0,0]
+            [0,0,0,0]
+            [0,0,0,0]
+            [0,0,0,0]] (util/create-empty-grid 4 4)))
+
+    (is (= [[0,0,0,0]
+            [0,0,0,0]] (util/create-empty-grid 2 4)))))

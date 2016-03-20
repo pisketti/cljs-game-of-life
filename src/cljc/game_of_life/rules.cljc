@@ -53,3 +53,30 @@
                       1
                       0))]
     (matrix/emap-indexed new-point grid)))
+
+(defn opposite-state [cell-state]
+  (if (= 1 cell-state)
+    0
+    1))
+
+(defn toggle-cell
+  "Switches a cell to the opposite state in the matrix.
+   Dead cell will become alive and a living cell will become dead"
+  [grid [x y]]
+  (if (get-in grid [x y])
+    (update-in grid [y x] opposite-state)
+    grid))
+
+(defn set-living-cell
+  "Makes cell a living cell on the grid"
+  [grid [x y]]
+  (if (get-in grid [x y])
+    (update-in grid [y x] (fn [_] 1))
+    grid))
+
+(defn create-empty-grid
+  "Creates a new cell grid"
+  [rows columns]
+  (->> (repeat (vec (take columns (repeat 0))))
+       (take rows)
+       vec))
