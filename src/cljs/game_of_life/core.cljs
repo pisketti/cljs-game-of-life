@@ -8,17 +8,31 @@
 
 (enable-console-print!)
 
-(def g [[1 0 0 0 0 1 0 0 0 1]
-        [0 1 0 0 1 0 0 0 0 0]
-        [0 0 1 1 0 0 0 0 0 0]
-        [0 0 1 1 0 0 0 0 0 0]
-        [0 1 0 0 1 0 0 0 0 0]
-        [1 0 0 0 0 1 0 0 0 0]
-        [0 0 0 0 0 0 0 0 0 0]
-        [0 0 0 0 0 0 0 0 0 0]
-        [0 0 0 0 0 0 0 0 0 0]
-        [1 0 0 0 0 0 0 0 0 1]
-        ])
+;;Interesting pattern that evolves for
+;;quite some time before stabilizing
+(def g1 [[1 0 0 0 0 1 0 0 0 1]
+         [0 1 0 0 1 0 0 0 0 0]
+         [0 0 1 1 0 0 0 0 0 0]
+         [0 0 1 1 0 0 0 0 0 0]
+         [0 1 0 0 0 0 0 0 0 0]
+         [1 0 0 0 0 1 0 0 0 0]
+         [0 0 0 0 0 1 0 0 0 0]
+         [0 0 0 0 0 1 0 0 0 0]
+         [0 0 0 0 0 1 0 0 0 0]
+         [1 0 0 0 0 0 0 0 0 1]])
+
+(def g2 [[1 0 0 0 0 0 0 0 0 1]
+         [0 0 0 0 0 0 0 0 0 0]
+         [0 0 0 0 0 0 0 0 0 0]
+         [0 0 0 0 0 0 0 0 0 0]
+         [0 0 0 0 0 0 0 0 0 0]
+         [0 0 0 0 0 0 0 0 0 0]
+         [0 0 0 0 1 1 1 0 0 0]
+         [0 0 0 0 1 0 0 0 0 0]
+         [0 0 0 0 0 0 0 0 0 0]
+         [1 0 0 0 0 0 0 0 0 1]])
+
+
 
 (def empty-grid [[0 0 0]
                  [0 0 0]
@@ -26,13 +40,14 @@
 
 (def test-grid [0 1 0 1])
 
-(def app-state (atom {:grid g
+(def app-state (atom {:grid g1
                       :test-grid test-grid
                       ;;:running? false
                       :timer nil
                       :settings {:cell-size 10
                                  :live-cell-color "red"
-                                 :dead-cell-color "white"}}))
+                                 :dead-cell-color "white"
+                                 :interval 500}}))
 
 (println "empty grid: " empty-grid)
 (println "current grid: " (get-in @app-state [:grid]))
@@ -41,7 +56,8 @@
 (defn test-canvas
   "Creates animated clock based on seconds only."
   []
-  (let [comp-state (atom {})]
+  (let [comp-state (atom {:canvas nil
+                          :ctx nil})]
     (reagent/create-class
      {
       :component-did-mount
@@ -56,12 +72,12 @@
                                       dead-cell-color]} (get-in @app-state [:settings])]
                           (if ctx
                             (let [render-cell! (fn [[y x] item]
-                                              (if (= item 1)
-                                                (set! (.-fillStyle ctx) live-cell-color)
-                                                (set! (.-fillStyle ctx) dead-cell-color))
-                                              (let [slot-x (* cell-size x)
-                                                    slot-y (* cell-size y)]
-                                                (.fillRect ctx slot-x slot-y cell-size cell-size)))]
+                                                 (if (= item 1)
+                                                   (set! (.-fillStyle ctx) live-cell-color)
+                                                   (set! (.-fillStyle ctx) dead-cell-color))
+                                                 (let [slot-x (* cell-size x)
+                                                       slot-y (* cell-size y)]
+                                                   (.fillRect ctx slot-x slot-y cell-size cell-size)))]
                               (matrix/emap-indexed render-cell! grid)))
 
                           )
@@ -80,7 +96,7 @@
                     (let [next-gen (rules/next-generation (:grid @app-state))]
                       (println "next gen: " next-gen)
                       (swap! app-state update-in [:grid] (constantly next-gen))))
-        create-timer (js/setInterval next-gen! 2000)]
+        create-timer (js/setInterval next-gen! (get-in @app-state [:settings :interval]))]
     (swap! app-state update-in [:timer] (constantly create-timer))))
 
 (defn stop-game! []
@@ -93,6 +109,11 @@
   (swap! app-state update-in [:timer] (constantly nil))
   ;;(js/alert "stop")
   )
+
+(defn reset-board! []
+  (println "Stopping timer")
+  (stop-game!)
+  (swap! app-state update-in [:grid] (constantly g1)))
 
 ;; -------------------------
 ;; Views
@@ -107,12 +128,22 @@
    [:div [:a {:href "/"} "go to the home page"]]])
 
 (defn current-page []
-  [:div ;;[(session/get :current-page)]
+  [:div {:style {:margin "0px 0px 0px 50px"}}
    [:div [:h3 "Game of life"]
     [test-canvas]]
+
+   (let [running? (not (nil? (:timer @app-state)))]
+     [:div
+      [:button {:on-click #(start-game!)
+                :disabled running?
+                :style {:width "100px" :margin "0px 1px 0px 0px"}} "PLAY"]
+      [:button {:on-click #(stop-game!)
+                :disabled (not running?)
+                :style {:width "100px" :margin "0px 0px 0px 1px"}} "PAUSE"]])
    [:div
-    [:button {:on-click #(start-game!) :disabled (not (nil? (:timer @app-state)))} "START"]
-    [:button {:on-click #(stop-game!)  :disabled (nil? (:timer @app-state))} "STOP"]]])
+    [:button {:on-click #(reset-board!)
+              :style {:width "200px" :margin "0px 1px 0px 0px"}} "reset"]
+    ]])
 
 ;; -------------------------
 ;; Routes

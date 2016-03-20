@@ -18,8 +18,7 @@
 (defn number-of-living-neighbours?
   "Gets the living neighbours for a cell in a grid"
   [[x y] grid]
-  (let [neighbours [
-                    ;; The row above
+  (let [neighbours [;; The row above
                     (point-val [(dec x), (dec y)] grid)
                     (point-val [x,       (dec y)] grid)
                     (point-val [(inc x), (dec y)] grid)
