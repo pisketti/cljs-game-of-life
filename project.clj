@@ -1,6 +1,6 @@
 (defproject game-of-life "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Conways's Game of Life in ClojureScript"
+  :url "https://github.com/pisketti/cljs-game-of-life"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
@@ -8,8 +8,6 @@
                  [ring-server "0.4.0"]
                  [reagent "0.5.1"
                   :exclusions [org.clojure/tools.reader]]
-                 [reagent-forms "0.5.21"]
-                 [reagent-utils "0.1.7"]
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.1.5"]
                  [ring-server                 "0.3.1"]
@@ -18,9 +16,6 @@
                  [environ "1.0.2"]
                  [org.clojure/clojurescript "1.8.34"
                   :scope "provided"]
-                 [secretary "1.2.3"]
-                 [venantius/accountant "0.1.7"
-                  :exclusions [org.clojure/tools.reader]]
                  [net.mikera/core.matrix "0.50.0"]]
 
   :plugins [[lein-ring    "0.9.7"]

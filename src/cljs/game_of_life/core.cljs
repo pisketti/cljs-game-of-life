@@ -1,6 +1,5 @@
 (ns game-of-life.core
   (:require [reagent.core :as r :refer [atom]]
-            [reagent.impl.component :as comp]
             [game-of-life.rules :as rules]
             [clojure.core.matrix :as matrix]))
 
