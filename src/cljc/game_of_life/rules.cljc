@@ -1,5 +1,6 @@
 (ns game-of-life.rules
-(:require [clojure.core.matrix :as matrix]))
+  (:require #? (:clj [clojure.core.matrix :as matrix]
+                :cljs [clojure.core.matrix :as matrix])))
 
 (defn will-be-alive?
   "Checks if the cell will live or be born in the next generation"
@@ -38,7 +39,7 @@
 
 (defn will-live-on-the-grid?
   "Checks if the cell will live or be born in the next generation"
-  [[y x] grid]
+  [[x y] grid]
   (let [current-value (point-val [x y] grid)
         alive-now? (= 1 current-value)
         living-neighbours (number-of-living-neighbours? [x y] grid)]
@@ -48,8 +49,8 @@
 (defn next-generation
   "Creates the next generation for the current cells"
   [grid]
-  (let [new-point (fn [indices _]
-                    (if (will-live-on-the-grid? indices grid)
+  (let [new-point (fn [[y x] _]
+                    (if (will-live-on-the-grid? [x y] grid)
                       1
                       0))]
     (matrix/emap-indexed new-point grid)))
