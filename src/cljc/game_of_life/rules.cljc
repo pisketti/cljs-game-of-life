@@ -77,6 +77,4 @@
 (defn create-empty-grid
   "Creates a new cell grid"
   [rows columns]
-  (->> (repeat (vec (take columns (repeat 0))))
-       (take rows)
-       vec))
+  (matrix/emap (constantly 0) (matrix/new-matrix rows columns)))
