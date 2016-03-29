@@ -1,6 +1,6 @@
 (ns game-of-life.rules
-  (:require #? (:clj [clojure.core.matrix :as matrix]
-                :cljs [clojure.core.matrix :as matrix])))
+  (:require #? (:clj [clojure.core.matrix :as m]
+                :cljs [clojure.core.matrix :as m])))
 
 (defn will-be-alive?
   "Checks if the cell will live or be born in the next generation"
@@ -52,7 +52,10 @@
                     (if (will-live-on-the-grid? [x y] grid)
                       1
                       0))]
-    (matrix/emap-indexed new-point grid)))
+    (m/emap-indexed new-point grid)))
+
+
+;; Utils for manipulating the cell matrix
 
 (defn opposite-state [cell-state]
   (if (= 1 cell-state)
@@ -77,4 +80,53 @@
 (defn create-empty-grid
   "Creates a new cell grid"
   [rows columns]
-  (matrix/emap (constantly 0) (matrix/new-matrix rows columns)))
+  (m/emap (constantly 0) (m/new-matrix rows columns)))
+
+(defn prepend-rows
+  "Prepends new rows to the matrix"
+  [matrix rows]
+  (let [new-rows-matrix (create-empty-grid rows (m/column-count matrix))]
+    (vec (concat new-rows-matrix matrix))))
+
+(defn append-rows
+  "Appends new rows to the matrix"
+  [matrix rows]
+  (let [new-rows-matrix (create-empty-grid rows (m/column-count matrix))]
+    (vec (concat matrix new-rows-matrix))))
+
+(defn prepend-columns
+  "Prepends new columns to the matrix"
+  [matrix columns]
+  (if (zero? columns)
+    matrix
+    (let [extra-row-items (take columns (repeat 0))]
+      (vec (map #(vec (concat extra-row-items %)) matrix)))))
+
+(defn append-columns
+  "Appends new columns to the matrix"
+  [matrix columns]
+  (if (zero? columns)
+    matrix
+    (let [extra-row-items (take columns (repeat 0))]
+      (vec (map #(vec (concat % extra-row-items)) matrix)))))
+
+(defn expand-to
+  "Expands a matrix to have more rows and columns"
+  [matrix rows columns]
+  (let [extra-rows-needed (- rows (m/row-count matrix))
+        extra-rows-top (if (even? extra-rows-needed)
+                            (/ extra-rows-needed 2)
+                            (/ (dec extra-rows-needed) 2))
+        extra-rows-bottom (- extra-rows-needed extra-rows-top)
+        extra-columns-needed (- columns (m/column-count matrix))
+        extra-columns-left (if (even? extra-columns-needed)
+                              (/ extra-columns-needed 2)
+                              (/ (dec extra-columns-needed) 2))
+        extra-columns-right (- extra-columns-needed extra-columns-left)]
+    ;; (println "rows: " rows  " extra-rows-needed: " extra-rows-needed
+    ;;          "extra-columns-needed " extra-columns-needed)
+    (-> matrix
+         (prepend-rows extra-rows-top)
+         (append-rows extra-rows-bottom)
+         (prepend-columns extra-columns-left)
+         (append-columns extra-columns-right))))
