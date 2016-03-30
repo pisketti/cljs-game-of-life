@@ -1,8 +1,9 @@
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
-  max-width: 600px;
+  max-width: 400px;
   margin: 0 auto;
-  padding-top: 72px;
+  padding-top: 10px;
+  padding-left: 10px;
   -webkit-font-smoothing: antialiased;
   font-size: 1.125em;
   color: #333;
@@ -22,6 +23,67 @@ h2 {
 
 h3 {
   font-size: 1.5em
+}
+
+h5 {
+    text-align: center;
+    margin: 20px 0px 0px 0px;
+}
+
+.half-size {
+    width: 50%;
+    color: blue;
+    display: inline-block;
+}
+
+.small-btn {
+    width: 49%;
+    margin: 1px 1px 1px 1px;
+}
+
+.full-btn {
+    width: 100%;
+    //margin: 2px 3px 0px 3px;
+    margin: 5px;
+
+}
+
+button {
+    border: none;
+    //color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+button[disabled=disabled],
+button:disabled {
+    background-color: #e7e7e7;
+    color: white;
+}
+
+.green {
+    background-color: #4CAF50;
+}
+
+.red {
+    background-color: #f44336;
+}
+
+.dark {
+    background-color: #555555;
+}
+
+.dark-gray {
+    background-color: #b3b3b3;
+    color: black;
+}
+
+.blue {
+    background-color: #008CBA;
+    color: white;
 }
 
 a {
