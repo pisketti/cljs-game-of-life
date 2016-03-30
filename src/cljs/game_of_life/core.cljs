@@ -5,35 +5,22 @@
 
 (enable-console-print!)
 
-;;Interesting pattern that evolves for
-;;quite some time before stabilizing
-;; (def g1 [[1 0 0 0 0 1 0 0 0 1]
-;;          [0 1 0 0 1 0 0 0 0 0]
-;;          [0 0 1 1 0 0 0 0 0 0]
-;;          [0 0 1 1 0 0 0 0 0 0]
-;;          [0 1 0 0 0 0 0 0 0 0]
-;;          [1 0 0 0 0 1 0 0 0 0]
-;;          [0 0 0 0 0 1 0 0 0 0]
-;;          [0 0 0 0 0 1 0 0 0 0]
-;;          [0 0 0 0 0 1 0 0 0 0]
-;;          [1 0 0 0 0 0 0 0 0 1]])
-
-;; (def g2 [[1 0 0 0 0 0 0 0 0 1]
-;;          [0 0 0 0 0 0 0 0 0 0]
-;;          [0 0 0 0 0 0 0 0 0 0]
-;;          [0 0 0 0 0 0 0 0 0 0]
-;;          [0 0 0 0 0 0 0 0 0 0]
-;;          [0 0 0 0 0 0 0 0 0 0]
-;;          [0 0 0 0 1 1 1 0 0 0]
-;;          [0 0 0 0 1 0 0 0 0 0]
-;;          [0 0 0 0 0 0 0 0 0 0]
-;;          [1 0 0 0 0 0 0 0 0 1]])
 
 (defonce empty-grid (rules/create-empty-grid 40 40))
 
 (def rows  40)
 (def columns 40 )
 
+(def app-state (atom {:grid empty-grid
+                      :preview nil
+                      :timer nil
+                      :settings {:cell-size 10
+                                 :board-width 400
+                                 :board-height 400
+                                 :live-cell-color "red"
+                                 :dead-cell-color "white"
+                                 :preview-color "#b3b3b3"
+                                 :interval 500}}))
 
 ;; Patterns
 
@@ -46,16 +33,17 @@
                                 [1 0 0 0 1]
                                 [1 1 1 1 0]] rows columns))
 
-(def app-state (atom {:grid empty-grid
-                      :preview nil
-                      :timer nil
-                      :settings {:cell-size 10
-                                 :board-width 400
-                                 :board-height 400
-                                 :live-cell-color "red"
-                                 :dead-cell-color "white"
-                                 :preview-color "#b3b3b3"
-                                 :interval 500}}))
+(defonce mwss (rules/expand-to [[0 0 0 1 0 0]
+                                [0 1 0 0 0 1]
+                                [1 0 0 0 0 0]
+                                [1 0 0 0 0 1]
+                                [1 1 1 1 1 0]] rows columns))
+
+(defonce hwss (rules/expand-to [[0 0 0 1 1 0 0]
+                                [0 1 0 0 0 0 1]
+                                [1 0 0 0 0 0 0]
+                                [1 0 0 0 0 0 1]
+                                [1 1 1 1 1 1 0]] rows columns))
 
 (defn set-preview [preview-matrix]
   (swap! app-state update-in [:preview] (constantly preview-matrix)))
@@ -200,6 +188,14 @@
                :on-mouse-over #(set-preview lwss)
                :on-mouse-out #(set-preview nil)
                :class "small-btn blue"} "LW space ship"]
+     [:button {:on-click #(set-pattern mwss)
+               :on-mouse-over #(set-preview mwss)
+               :on-mouse-out #(set-preview nil)
+               :class "small-btn blue"} "MW space ship"]
+     [:button {:on-click #(set-pattern hwss)
+               :on-mouse-over #(set-preview hwss)
+               :on-mouse-out #(set-preview nil)
+               :class "small-btn blue"} "HW space ship"]
      ]
     ]])
 
