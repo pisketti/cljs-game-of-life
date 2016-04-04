@@ -1,12 +1,13 @@
 (ns game-of-life.core
   (:require [reagent.core :as r :refer [atom]]
             [game-of-life.rules :as rules]
+            [game-of-life.utils :as utils]
             [clojure.core.matrix :as matrix]))
 
 (enable-console-print!)
 
 
-(defonce empty-grid (rules/create-empty-grid 40 40))
+(defonce empty-grid (utils/create-empty-grid 40 40))
 
 (def rows  40)
 (def columns 40 )
@@ -24,22 +25,22 @@
 
 ;; Patterns
 
-(defonce glider (rules/expand-to [[0 1 0]
+(defonce glider (utils/expand-to [[0 1 0]
                                   [0 0 1]
                                   [1 1 1]] rows columns))
 
-(defonce lwss (rules/expand-to [[0 1 0 0 1]
+(defonce lwss (utils/expand-to [[0 1 0 0 1]
                                 [1 0 0 0 0]
                                 [1 0 0 0 1]
                                 [1 1 1 1 0]] rows columns))
 
-(defonce mwss (rules/expand-to [[0 0 0 1 0 0]
+(defonce mwss (utils/expand-to [[0 0 0 1 0 0]
                                 [0 1 0 0 0 1]
                                 [1 0 0 0 0 0]
                                 [1 0 0 0 0 1]
                                 [1 1 1 1 1 0]] rows columns))
 
-(defonce hwss (rules/expand-to [[0 0 0 1 1 0 0]
+(defonce hwss (utils/expand-to [[0 0 0 1 1 0 0]
                                 [0 1 0 0 0 0 1]
                                 [1 0 0 0 0 0 0]
                                 [1 0 0 0 0 0 1]
@@ -112,7 +113,7 @@
                                 (swap! comp-state update-in [:mousedown] (constantly val)))
               mouse-down (fn [e]
                            (let [[x y] (get-matrix-coords e canvas)]
-                             (swap! app-state update-in [:grid] rules/toggle-cell [x y]))
+                             (swap! app-state update-in [:grid] utils/toggle-cell [x y]))
                            (set-mouse-down! true))
 
               mouse-up (fn [e]
@@ -122,7 +123,7 @@
               mouse-move (fn [e]
                            (if (:mousedown @comp-state)
                              (let [[x y] (get-matrix-coords e canvas)]
-                               (swap! app-state update-in [:grid] rules/set-living-cell [x y]))))]
+                               (swap! app-state update-in [:grid] utils/set-living-cell [x y]))))]
 
           (set! (.-onmousedown canvas) mouse-down)
           (set! (.-onmouseup canvas) mouse-up)
