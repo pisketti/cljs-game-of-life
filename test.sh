@@ -1,1 +1,1 @@
-lein test game-of-life.util-test
+lein test game-of-life.rules-test game-of-life.utils-test
