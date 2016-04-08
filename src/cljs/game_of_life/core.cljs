@@ -188,8 +188,7 @@
                                     [0 0 0 1 1 1]
                                     [0 0 0 1 1 1]] rows columns))
 
-(defonce queenbee (utils/expand-to [
-                                    [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+(defonce queenbee (utils/expand-to [[0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
                                     [0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
                                     [0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 1 1]
                                     [1 1 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 1]
@@ -210,10 +209,6 @@
                                    [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0]]
                                   rows columns))
 
-
-
-
-
 ;; -------------------------
 ;; View
 
@@ -223,24 +218,36 @@
             :on-mouse-out #(set-preview nil)
             :class "small-btn blue"} name])
 
+(defn play-button []
+  (let [running? (not (nil? (:timer @app-state)))
+        play-pause! #(if running?
+                      (stop-game!)
+                      (start-game!))
+        class (if running?
+                "full-btn red"
+                "full-btn green")
+        name (if running?
+                "PAUSE"
+                "PLAY")]
+     [:div
+      [:button {:on-click play-pause!
+                :class class} name]]))
+
+(defn clear-button []
+  [:div
+      [:button {:on-click #(reset-board!)
+                :class "full-btn dark-gray"} "CLEAR"]])
+
 (defn game-of-life []
   [:div {:style {:margin "0px 0px 0px 0px"}}
    [:div [:h3 "Game of life"]
     [game-of-life-board]]
 
-   (let [running? (not (nil? (:timer @app-state)))]
-     [:div
-      [:div {:class "half-size"}
-       [:button {:on-click #(start-game!)
-                 :disabled running?
-                 :class "full-btn green"} "PLAY"]]
-      [:div {:class "half-size"}
-       [:button {:on-click #(stop-game!)
-                 :disabled (not running?)
-                 :class "full-btn red"} "PAUSE"]]])
    [:div
-    [:button {:on-click #(reset-board!)
-              :class "full-btn dark-gray"} "CLEAR"]]
+    [:div {:class "half-size"}
+     [play-button]]
+    [:div {:class "half-size"}
+     [clear-button]]]
 
    [:div
     [:h5 "space ships"]
