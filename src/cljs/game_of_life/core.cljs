@@ -6,45 +6,27 @@
 
 (enable-console-print!)
 
+(def rows      40)
+(def columns   40)
+(def cell-size 10)
 
-(defonce empty-grid (utils/create-empty-grid 40 40))
+(defonce empty-grid (utils/create-empty-grid rows columns))
 
-(def rows  40)
-(def columns 40 )
+(defonce empty-grid (utils/create-empty-grid rows columns))
 
 (def app-state (atom {:grid empty-grid
                       :preview nil
                       :timer nil
-                      :settings {:cell-size 10
-                                 :board-width 400
-                                 :board-height 400
+                      :settings {:cell-size cell-size
+                                 :board-width (* cell-size columns)
+                                 :board-height (* cell-size rows)
                                  :live-cell-color "red"
                                  :dead-cell-color "white"
                                  :preview-color "#b3b3b3"
-                                 :interval 500}}))
+                                 :interval 100}}))
 
-;; Patterns
-
-(defonce glider (utils/expand-to [[0 1 0]
-                                  [0 0 1]
-                                  [1 1 1]] rows columns))
-
-(defonce lwss (utils/expand-to [[0 1 0 0 1]
-                                [1 0 0 0 0]
-                                [1 0 0 0 1]
-                                [1 1 1 1 0]] rows columns))
-
-(defonce mwss (utils/expand-to [[0 0 0 1 0 0]
-                                [0 1 0 0 0 1]
-                                [1 0 0 0 0 0]
-                                [1 0 0 0 0 1]
-                                [1 1 1 1 1 0]] rows columns))
-
-(defonce hwss (utils/expand-to [[0 0 0 1 1 0 0]
-                                [0 1 0 0 0 0 1]
-                                [1 0 0 0 0 0 0]
-                                [1 0 0 0 0 0 1]
-                                [1 1 1 1 1 1 0]] rows columns))
+(println (:settings @app-state))
+(println "grid width: " (count (get-in @app-state [:grid 0] )))
 
 (defn set-preview [preview-matrix]
   (swap! app-state update-in [:preview] (constantly preview-matrix)))
@@ -67,16 +49,18 @@
         get-matrix-coords (fn [mouse-event canvas]
                             (let [window-x (.-x mouse-event)
                                   window-y (.-y mouse-event)
+                                  cell-size (get-in @app-state [:settings :cell-size])
                                   [canvas-x canvas-y] (get-canvas-coords [window-x window-y] canvas)
-                                  matrix-x (.floor js/Math (/ canvas-x 10))
-                                  matrix-y (.floor js/Math (/ canvas-y 10))]
-                              (println "window coords: " [[window-x window-y]]
-                                       " canvas coords: " [[canvas-x canvas-y]]
-                                       " matrix coors: " [matrix-x matrix-y])
+                                  matrix-x (.floor js/Math (/ canvas-x cell-size))
+                                  matrix-y (.floor js/Math (/ canvas-y cell-size))]
+
+                              ;; (println "window coords: " [[window-x window-y]]
+                              ;;          " canvas coords: " [[canvas-x canvas-y]]
+                              ;;          " matrix coors: " [matrix-x matrix-y])
+
                               [matrix-x matrix-y]))
 
         render-cell! (fn [ctx {:keys [cell-size live-cell-color dead-cell-color]}]
-                       (println "live-cell-color: " live-cell-color)
                        (fn [[y x] item]
                          (let [alive? (= item 1)
                                redraw-dead? dead-cell-color]
@@ -97,6 +81,8 @@
                               preview-settings (-> settings
                                                    (assoc :live-cell-color preview-color)
                                                    (assoc :dead-cell-color nil))]
+                          ;; (doseq [row grid]
+                          ;;   (println row))
                           (when ctx
                             (matrix/emap-indexed (render-cell! ctx settings) grid)
                             (when preview
@@ -117,7 +103,7 @@
                            (set-mouse-down! true))
 
               mouse-up (fn [e]
-                         (println "mouseup x:" (.-x e) " y:" (.-y e))
+                         ;;(println "mouseup x:" (.-x e) " y:" (.-y e))
                          (set-mouse-down! false))
 
               mouse-move (fn [e]
@@ -129,7 +115,6 @@
           (set! (.-onmouseup canvas) mouse-up)
           (set! (.-onmousemove canvas) mouse-move)
 
-          (println "mouse click added. mousedown added")
           (reset! comp-state {:canvas canvas
                               :ctx ctx})))
 
@@ -155,8 +140,88 @@
   (stop-game!)
   (swap! app-state update-in [:grid] (constantly empty-grid)))
 
+;; -------------- Patterns ----------------
+
+;; Space ships
+
+(defonce glider (utils/expand-to [[0 1 0]
+                                  [0 0 1]
+                                  [1 1 1]] rows columns))
+
+(defonce lwss (utils/expand-to [[0 1 0 0 1]
+                                [1 0 0 0 0]
+                                [1 0 0 0 1]
+                                [1 1 1 1 0]] rows columns))
+
+(defonce mwss (utils/expand-to [[0 0 0 1 0 0]
+                                [0 1 0 0 0 1]
+                                [1 0 0 0 0 0]
+                                [1 0 0 0 0 1]
+                                [1 1 1 1 1 0]] rows columns))
+
+(defonce hwss (utils/expand-to [[0 0 0 1 1 0 0]
+                                [0 1 0 0 0 0 1]
+                                [1 0 0 0 0 0 0]
+                                [1 0 0 0 0 0 1]
+                                [1 1 1 1 1 1 0]] rows columns))
+
+;; Oscillators
+
+(defonce pulsar (utils/expand-to [[0 0 1 1 1 0 0 0 1 1 1 0 0]
+                                  [0 0 0 0 0 0 0 0 0 0 0 0 0]
+                                  [1 0 0 0 0 1 0 1 0 0 0 0 1]
+                                  [1 0 0 0 0 1 0 1 0 0 0 0 1]
+                                  [1 0 0 0 0 1 0 1 0 0 0 0 1]
+                                  [0 0 1 1 1 0 0 0 1 1 1 0 0]
+                                  [0 0 0 0 0 0 0 0 0 0 0 0 0]
+                                  [0 0 1 1 1 0 0 0 1 1 1 0 0]
+                                  [1 0 0 0 0 1 0 1 0 0 0 0 1]
+                                  [1 0 0 0 0 1 0 1 0 0 0 0 1]
+                                  [1 0 0 0 0 1 0 1 0 0 0 0 1]
+                                  [0 0 0 0 0 0 0 0 0 0 0 0 0]
+                                  [0 0 1 1 1 0 0 0 1 1 1 0 0]] rows columns))
+
+(defonce figure-8 (utils/expand-to [[1 1 1 0 0 0]
+                                    [1 1 1 0 0 0]
+                                    [1 1 1 0 0 0]
+                                    [0 0 0 1 1 1]
+                                    [0 0 0 1 1 1]
+                                    [0 0 0 1 1 1]] rows columns))
+
+(defonce queenbee (utils/expand-to [
+                                    [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+                                    [0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+                                    [0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 1 1]
+                                    [1 1 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 1]
+                                    [1 1 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
+                                    [0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+                                    [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]] rows columns))
+
+(defonce twinbee (utils/expand-to [[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0]
+                                   [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 1 1]
+                                   [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 1]
+                                   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0]
+                                   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+                                   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+                                   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+                                   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0]
+                                   [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+                                   [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0]
+                                   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0]]
+                                  rows columns))
+
+
+
+
+
 ;; -------------------------
 ;; View
+
+(defn pattern-button [pattern-matrix name]
+  [:button {:on-click #(set-pattern pattern-matrix)
+            :on-mouse-over #(set-preview pattern-matrix)
+            :on-mouse-out #(set-preview nil)
+            :class "small-btn blue"} name])
 
 (defn game-of-life []
   [:div {:style {:margin "0px 0px 0px 0px"}}
@@ -167,8 +232,8 @@
      [:div
       [:div {:class "half-size"}
        [:button {:on-click #(start-game!)
-                      :disabled running?
-                      :class "full-btn green"} "PLAY"]]
+                 :disabled running?
+                 :class "full-btn green"} "PLAY"]]
       [:div {:class "half-size"}
        [:button {:on-click #(stop-game!)
                  :disabled (not running?)
@@ -179,26 +244,18 @@
 
    [:div
     [:h5 "space ships"]
-
     [:div
-     [:button {:on-click #(set-pattern glider)
-               :on-mouse-over #(set-preview glider)
-               :on-mouse-out #(set-preview nil)
-               :class "small-btn blue"} "Glider"]
-     [:button {:on-click #(set-pattern lwss)
-               :on-mouse-over #(set-preview lwss)
-               :on-mouse-out #(set-preview nil)
-               :class "small-btn blue"} "LW space ship"]
-     [:button {:on-click #(set-pattern mwss)
-               :on-mouse-over #(set-preview mwss)
-               :on-mouse-out #(set-preview nil)
-               :class "small-btn blue"} "MW space ship"]
-     [:button {:on-click #(set-pattern hwss)
-               :on-mouse-over #(set-preview hwss)
-               :on-mouse-out #(set-preview nil)
-               :class "small-btn blue"} "HW space ship"]
-     ]
-    ]])
+     (pattern-button glider "Glider")
+     (pattern-button lwss "LW space ship")
+     (pattern-button mwss "MW space ship")
+     (pattern-button hwss "HW space ship")]]
+
+   [:div
+    [:h5 "Oscillators"]
+    (pattern-button pulsar "Pulsar")
+    (pattern-button figure-8 "Figure 8")
+    (pattern-button queenbee "Queen bee shuttle")
+    (pattern-button twinbee "Twin bees shuttle")]])
 
 ;; -------------------------
 ;; Initialize app
