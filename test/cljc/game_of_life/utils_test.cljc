@@ -24,7 +24,17 @@
   (testing "Returns matrix as is if if cell not on matrix"
     (is (= [[1,1]
             [1,1]] (util/toggle-cell [[1,1]
-                                      [1,1]] [3,0])))))
+                                      [1,1]] [3,0]))))
+  (testing "Toggles the last cell on the matrix"
+    (is (= [[0,0,0,0]
+            [0,0,0,1]] (util/toggle-cell [[0,0,0,0]
+                                          [0,0,0,0]] [3,1]))))
+
+  (testing "Toggles the last cell of a long row matrix"
+    (let [long-rowmatrix (util/create-empty-grid 1 50)
+          last-cell-set-matrix (util/toggle-cell long-rowmatrix [49 0])
+          last-cell-value (-> last-cell-set-matrix first last)]
+      (is (= 1 last-cell-value)))))
 
 (deftest create-empty-grid
   (testing "Creates a grid with given dimensions"

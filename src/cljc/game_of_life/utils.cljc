@@ -11,7 +11,7 @@
   "Switches a cell to the opposite state in the matrix.
    Dead cell will become alive and a living cell will become dead"
   [grid [x y]]
-  (if (get-in grid [x y])
+  (if (get-in grid [y x])
     (update-in grid [y x] opposite-state)
     grid))
 
